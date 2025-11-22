@@ -22,7 +22,7 @@ competition Competition;
 // 5 = skills goal 2
 // 6 = skills goal 3
 // 7 = skills park
-int autonToggle = 3;
+int autonToggle = 4;
 
 // define your global instances of motors and other devices here
 brain Brain;
@@ -199,7 +199,7 @@ void inchDrive(float target, int timeout = 1200, float kp = 3.8) {
   rightSide.stop(brake);
   wait(10, msec);
 }
-  
+
 void gyroturnAbs(double target, int timeout = 1200) {
     timer t1;
     t1.reset();
@@ -246,6 +246,7 @@ void gyroturnAbs(double target, int timeout = 1200) {
     rightSide.stop();
     wait(10, msec);
   }
+
 // rd = radius of circular path
 void arcTurn(float rd, float angle, float maxSpeed = 100) {
     float kp = 12.0;
@@ -364,6 +365,7 @@ void WPRight() {
   inchDrive(-19, 2000, 4);
 }
 
+// NEED TO FINISH
 void WPLeft() {
   intakeTop();
   stopPiston.set(false);
@@ -383,6 +385,48 @@ void WPLeft() {
   wait(900, msec);
   stopAll();
   inchDrive(45);
+}
+
+void skillsFirstGoal() {
+  intakeTop();
+  stopPiston.set(false);
+  inchDrive(21, 650);
+  gyroturnAbs(34, 440);
+  inchDrive(20, 730);
+  gyroturnAbs(125, 630); 
+  inchDrive(30, 850); // drive to goal
+  matchLoader.set(true);
+  gyroturnAbs(182, 540); // turn to match load
+  inchDrive(15.5, 1700, 3.5); // match loading
+  wait(400, msec);
+  inchDrive(-32.5, 1350, 2.6);
+  stopPiston.set(true);
+  intakeTop();
+  wait(2500, msec);
+  stopAll(); // end first goal
+}
+
+void skillsSecondGoal() {
+  matchLoader.set(false);
+  inchDrive(15, 590);
+  gyroturnAbs(-80); // TIME
+  inchDrive(-14, 700);
+  gyroturnAbs(0, 900);
+  descore.set(true);
+  inchDrive(80, 2000, 3.0); // wall reset
+  gyroturnAbs(-45, 850);
+  inchDrive(18.5, 900); // drive to goal
+  matchLoader.set(true);
+  gyroturnAbs(0);
+  stopPiston.set(false);
+  intakeTop();
+  inchDrive(20, 2100, 3.5); // match loading
+  inchDrive(-32, 1500, 2.6); // scoring
+  stopPiston.set(true);
+  intakeTop();
+  wait(3000, msec);
+  stopAll(); // end second goal
+  matchLoader.set(false);
 }
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -430,44 +474,10 @@ void autonomous(void) {
       WPLeft();
       break;
     case 4: // SKILLS 1-5
-      intakeTop();
-      stopPiston.set(false);
-      inchDrive(21, 780);
-      gyroturnAbs(34, 540);
-      inchDrive(20, 780);
-      gyroturnAbs(125, 830); 
-      inchDrive(30.5, 950); // drive to goal
-      matchLoader.set(true);
-      gyroturnAbs(176, 780); // turn to match load
-      inchDrive(15.5, 1800, 3.5); // match loading
-      wait(700, msec);
-      //stopAll();
-      inchDrive(-32, 1450, 2.6);
-      stopPiston.set(true);
-      intakeTop();
-      wait(3000, msec);
-      stopAll(); // end first goal
+      skillsFirstGoal();
     case 5:
-      matchLoader.set(false);
-      inchDrive(15, 590);
-      gyroturnAbs(-80); // TIME
-      inchDrive(-14, 700);
-      gyroturnAbs(0, 900);
-      descore.set(true);
-      inchDrive(80, 2000, 3.0); // wall reset
-      gyroturnAbs(-45, 850);
-      inchDrive(18.5, 900); // drive to goal
-      matchLoader.set(true);
-      gyroturnAbs(0);
-      stopPiston.set(false);
-      intakeTop();
-      inchDrive(20, 2100, 3.5); // match loading
-      inchDrive(-32, 1500, 2.6); // scoring
-      stopPiston.set(true);
-      intakeTop();
-      wait(3000, msec);
-      stopAll(); // end second goal
-      matchLoader.set(false);
+      skillsSecondGoal();
+      break;
     case 6: // SKILLS 6-8
       inchDrive(15, 575);
       gyroturnAbs(-80, 655);
