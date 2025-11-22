@@ -55,6 +55,9 @@ double diameter = 3.25;
 double g = 36.0/48.0;
 double width = 13.75;
 
+double normalizeAngle(double angle)
+{ while (angle > 180.0) angle -= 360.0; while (angle < -180.0) angle += 360.0; return angle; }
+
 // piston controls
 void loaderControl() {
   matchLoader.set(!matchLoader.value());
@@ -155,10 +158,10 @@ void inchDrive(float target, int timeout = 1200, float kp = 3.8) {
   rightFront.setPosition(0.0, rev);
   
   while (t2.time(msec) < timeout) {
-    heading = Gyro.rotation();
-    aerror = Atarget - heading;
-    aspeed = ap*aerror;
-  
+    heading = Gyro.rotation(degrees);
+    aerror  = normalizeAngle(Atarget - heading);
+    aspeed  = ap * aerror;
+
     x = ((rightFront.position(rev) + leftFront.position(rev)) / 2.0) * pi * diameter * g;
     error = target - x;
     if (fabs(error) < accuracy)
@@ -201,80 +204,79 @@ void inchDrive(float target, int timeout = 1200, float kp = 3.8) {
 }
 
 void gyroturnAbs(double target, int timeout = 1200) {
-    timer t1;
-    t1.reset();
-    float kp = 1.75;
-    float ki = 0;
-    float kd = 0.6;
-    float integral = 0;
-    float integralTolerance = 3;
-    // float integralMax = 100;
-    float heading = 0.0;
-    float error = target - heading;
-    float prevError = 0;
-    float derivative;
-    float speed = kp * error;
-    float accuracy = 0.1;
-    float bias = 0;
-    int count = 0;
-    while (t1.time(msec) < timeout) {
-      heading = Gyro.rotation(degrees);
-      error = target - heading;
-      derivative = (error - prevError);
-      prevError = error;
-      if (fabs(error) < integralTolerance)
-      {
-        integral += error;
-      }
-      if (fabs(error) < accuracy)
-      {
-        count++;
-      }
-      else {
-        count = 0;
-      }
-      if (count > 20) {
-        break;
-      }
-      speed = kp * error + kd * derivative + ki * integral;
-      DriveVolts(speed, -speed, 1, 0);
-      wait(10, msec);
+  timer t1;
+  t1.reset();
+  float kp = 1.75;
+  float ki = 0;
+  float kd = 0.6;
+  float integral = 0;
+  float integralTolerance = 3;
+  // float integralMax = 100;
+  float heading = 0.0;
+  float error = 0.0;
+  float prevError = 0;
+  float derivative;
+  float speed = kp * error;
+  float accuracy = 0.1;
+  float bias = 0;
+  int count = 0;
+
+  heading = Gyro.rotation(degrees);
+  while (t1.time(msec) < timeout) {
+    heading = Gyro.rotation(degrees);
+    //error = target - heading;
+    double error = normalizeAngle(target - heading);
+    derivative = (error - prevError);
+    prevError = error;
+    if (fabs(error) < integralTolerance)
+    {
+      integral += error;
     }
-    leftSide.setStopping(brake);
-    leftSide.stop();
-    rightSide.setStopping(brake);
-    rightSide.stop();
+    if (fabs(error) < accuracy)
+    {
+      count++;
+    }
+    else {
+      count = 0;
+    }
+    if (count > 20) {
+      break;
+    }
+    speed = kp * error + kd * derivative + ki * integral;
+    DriveVolts(speed, -speed, 1, 0);
     wait(10, msec);
   }
+  leftSide.setStopping(brake);
+  leftSide.stop();
+  rightSide.setStopping(brake);
+  rightSide.stop();
+  wait(10, msec);
+}
 
 // rd = radius of circular path
 void arcTurn(float rd, float angle, float maxSpeed = 100) {
-    float kp = 12.0;
-    float kd = 1.0;
-    float targetArcLength = rd * 2 * pi * (angle/360.0);
-    float arcLength = 0.0;
-    float error = targetArcLength - arcLength;
-    float oldError = error;
-    float lspeed = (maxSpeed * angle) / fabs(angle);
-    float rspeed = (lspeed * (rd - width)) / rd;
-    float accuracy = 0.2;
-    leftMiddle.setPosition(0.0, rev);
-    rightMiddle.setPosition(0.0, rev);
-    while (fabs(error) >= accuracy) {
-      DriveVolts(lspeed, rspeed, 1, 10);
-      arcLength = leftMiddle.position(rev) * g * pi * diameter;
-      oldError = error;
-      error = targetArcLength - arcLength;
-      lspeed = (kp * error) + (kd * (error-oldError));
-      if (fabs(lspeed) >= maxSpeed) {
-        lspeed = (maxSpeed * error) / fabs(error);
-        rspeed = (lspeed * (rd - width)) / rd;
-      }
-      // leftSide.setStopping(brake);
-      // rightSide.setStopping(brake);
-      // leftSide.stop();
-      // rightSide.stop();
+  float kp = 12.0;
+  float kd = 1.0;
+  float targetArcLength = rd * 2 * pi * (angle/360.0);
+  float arcLength = 0.0;
+  float error = targetArcLength - arcLength;
+  float oldError = error;
+  float lspeed = (maxSpeed * angle) / fabs(angle);
+  float rspeed = (lspeed * (rd - width)) / rd;
+  float accuracy = 0.2;
+  leftMiddle.setPosition(0.0, rev);
+  rightMiddle.setPosition(0.0, rev);
+  while (fabs(error) >= accuracy) {
+    DriveVolts(lspeed, rspeed, 1, 10);
+    arcLength = leftMiddle.position(rev) * g * pi * diameter;
+    oldError = error;
+    error = targetArcLength - arcLength;
+    lspeed = (kp * error) + (kd * (error-oldError));
+    if (fabs(lspeed) >= maxSpeed) {
+      lspeed = (maxSpeed * error) / fabs(error);
+      rspeed = (lspeed * (rd - width)) / rd;
     }
+  }
 }
 
 void longGoalLeft() {
@@ -397,9 +399,9 @@ void skillsFirstGoal() {
   inchDrive(28, 820); // drive to goal
   matchLoader.set(true);
   gyroturnAbs(182, 510); // turn to match load
-  inchDrive(15.5, 1700, 3.5); // match loading
+  inchDrive(15.5, 1700, 3.6); // match loading
   wait(400, msec);
-  inchDrive(-32.5, 1350, 2.6);
+  inchDrive(-32.5, 1250, 2.6);
   stopPiston.set(true);
   intakeTop();
   wait(2500, msec);
@@ -415,7 +417,7 @@ void skillsSecondGoal() {
   descore.set(true);
   inchDrive(80, 1750, 3.0); // wall reset
   gyroturnAbs(-45, 690);
-  inchDrive(17.3, 620); // drive to goal
+  inchDrive(18, 620); // drive to goal
   matchLoader.set(true);
   gyroturnAbs(0, 650);
   stopPiston.set(false);
@@ -424,9 +426,49 @@ void skillsSecondGoal() {
   inchDrive(-32, 1400, 2.6); // scoring
   stopPiston.set(true);
   intakeTop();
-  wait(3000, msec);
+  wait(2000, msec);
   stopAll(); // end second goal
   matchLoader.set(false);
+}
+
+void skillsThirdGoal() {
+  inchDrive(15, 540);
+  gyroturnAbs(-80, 640);
+  inchDrive(101, 1950, 3); // add distance sensor code here
+  gyroturnAbs(0, 700); // rigyt angle 340
+  matchLoader.set(true);
+  inchDrive(-21, 1000, 4); // driving backwards to goal
+  intakeTop();
+  stopPiston.set(false);
+  inchDrive(35, 3000, 3); // match loading
+  gyroturnAbs(-8);
+  inchDrive(-32, 1400, 2.7); // driving to goal
+  stopPiston.set(true);
+  intakeTop();
+  wait(3000, msec);
+  stopAll();
+  matchLoader.set(false); // end third goal
+}
+
+void skillsFourthGoal() {
+  inchDrive(17, 550);
+  gyroturnAbs(123, 700);
+  intakeTop();
+  stopPiston.set(false);
+  inchDrive(23, 900);
+  wait(400, msec);
+  stopAll();
+  // rollersBottom.spin(forward, 100, pct);
+  gyroturnAbs(176, 650);
+  inchDrive(66, 1000);
+  rollersBottom.stop();
+  gyroturnAbs(245, 800); // turn to face goal
+  inchDrive(29, 800); // going to goal
+  matchLoader.set(true); // maybe add an aligner
+  gyroturnAbs(183, 800);
+  intakeTop();
+  inchDrive(20, 2000, 3); // match loading
+  stopTop();
 }
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -479,59 +521,10 @@ void autonomous(void) {
       skillsSecondGoal();
       break;
     case 6: // SKILLS 6-8
-      inchDrive(15, 575);
-      gyroturnAbs(-80, 655);
-      inchDrive(118, 1950, 3); // wall reset
-      inchDrive(-17.2, 600);
-      gyroturnAbs(0, 900); // rigyt angle 340
-      matchLoader.set(true);
-      inchDrive(-24, 1000, 3.5); // driving backwards to goal
-      //gyroturnAbs(-175, 90); // extra turning
-      intakeTop();
-      stopPiston.set(false);
-      inchDrive(35, 3000, 3); // match loading
-      gyroturnAbs(-8);
-      inchDrive(-32, 1400, 2.7); // driving to goal
-      stopPiston.set(true);
-      intakeTop();
-      wait(3000, msec);
-      stopAll();
-      matchLoader.set(false); // end third goal
-    case 7: // parking from 3rd
-      inchDrive(15, 590);
-      gyroturnAbs(130, 850);
-      intakeTop();
-      stopPiston.set(false);
-      inchDrive(23, 900);
-      wait(400, msec);
-      stopAll();
-      rollersBottom.spin(reverse, 100, pct);
-      gyroturnAbs(176, 800);
-      inchDrive(97, 2100, 3.2);
-      rollersBottom.stop();
-      gyroturnAbs(87, 300);
-      intakeTop();
-      inchDrive(57, 1200, 6);
+      skillsThirdGoal();
       break;
-    case 8: // wip 4th goal
-      inchDrive(15, 590);
-      gyroturnAbs(130, 850);
-      intakeTop();
-      stopPiston.set(false);
-      inchDrive(23, 900);
-      wait(400, msec);
-      stopAll();
-      rollersBottom.spin(forward, 100, pct);
-      gyroturnAbs(176, 800);
-      inchDrive(66);
-      rollersBottom.stop();
-      gyroturnAbs(245, 1000); // turn to face goal
-      inchDrive(25);
-      matchLoader.set(true); // maybe add an aligner
-      gyroturnAbs(183);
-      intakeTop();
-      inchDrive(30, 2000, 3.4);
-      stopTop();
+    case 7: // fourth goal
+      skillsFourthGoal();
       break;
   }
 }
@@ -606,38 +599,6 @@ void usercontrol(void) {
       topIntake.stop();
       rollersTop.stop();
     }
-    /*
-    if (Controller1.ButtonR1.pressing()) {
-      rollersBottom.spin(reverse, 100, pct);
-      rollersTop.spin(forward, 100, pct);
-      topIntake.spin(forward, 100, pct);
-    }
-    // scoring bottom
-    else if (Controller1.ButtonR2.pressing()) {
-      rollersBottom.spin(reverse, 100, pct);
-      topIntake.spin(reverse, 100, pct);
-      rollersTop.spin(forward, 60, pct);
-    }
-    // descoring
-    else if (Controller1.ButtonL1.pressing()) {
-      rollersBottom.spin(forward, 100, pct);
-      rollersTop.spin(reverse, 100, pct);
-    }
-    // loop to stop the rollers when there are more than 4 balls 
-    if ((stopPiston.value() == true) && Controller1.ButtonR1.pressing()) {
-      int count = 0;
-      while (count <= 4) {
-        if (// color == blue or color == red) {
-          rollersBottom.spin(reverse, 100, pct);
-          rollersTop.spin(forward, 100, pct);
-          topIntake.spin(forward, 100, pct);    
-          count++;  
-        }
-      }
-      rollersTop.stop();
-      topIntake.stop();
-    }
-    */
     wait(10, msec);
   }
 }
