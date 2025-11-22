@@ -22,7 +22,7 @@ competition Competition;
 // 5 = skills goal 2
 // 6 = skills goal 3
 // 7 = skills park
-int autonToggle = 4;
+int autonToggle = 7;
 
 // define your global instances of motors and other devices here
 brain Brain;
@@ -82,6 +82,10 @@ void stopAll() {
 void stopTop() {
   rollersTop.stop();
   topIntake.stop();
+}
+
+void stopBottom() {
+  rollersBottom.stop();
 }
 
 void drive(int lspeed, int rspeed, int wt) {
@@ -411,7 +415,7 @@ void skillsFirstGoal() {
 void skillsSecondGoal() {
   matchLoader.set(false);
   inchDrive(15, 540);
-  gyroturnAbs(-80); // TIME
+  gyroturnAbs(-80, 700); // TIME
   inchDrive(-14, 640);
   gyroturnAbs(0, 690);
   descore.set(true);
@@ -422,7 +426,7 @@ void skillsSecondGoal() {
   gyroturnAbs(0, 650);
   stopPiston.set(false);
   intakeTop();
-  inchDrive(20, 2100, 3.5); // match loading
+  inchDrive(22, 2100, 3.5); // match loading
   inchDrive(-32, 1400, 2.6); // scoring
   stopPiston.set(true);
   intakeTop();
@@ -455,20 +459,37 @@ void skillsFourthGoal() {
   gyroturnAbs(123, 700);
   intakeTop();
   stopPiston.set(false);
-  inchDrive(23, 900);
-  wait(400, msec);
-  stopAll();
-  // rollersBottom.spin(forward, 100, pct);
-  gyroturnAbs(176, 650);
-  inchDrive(66, 1000);
+  inchDrive(27, 650);
+  wait(700, msec);
+  stopBottom();
+  gyroturnAbs(176, 600);
+  rollersBottom.spin(forward, 100, pct);
+  inchDrive(66, 1300);
   rollersBottom.stop();
   gyroturnAbs(245, 800); // turn to face goal
-  inchDrive(29, 800); // going to goal
+  inchDrive(31, 760); // going to goal
   matchLoader.set(true); // maybe add an aligner
-  gyroturnAbs(183, 800);
+  gyroturnAbs(183, 750);
   intakeTop();
-  inchDrive(20, 2000, 3); // match loading
+  inchDrive(23, 2100, 3); // match loading
   stopTop();
+  inchDrive(-31.5, 1400, 2.7); // driving to goal
+  stopPiston.set(true);
+  intakeTop();
+  wait(3000, msec);
+  stopAll();
+  matchLoader.set(false); // end third goal}
+}
+
+void skillsPark() {
+  inchDrive(20, 800);
+  gyroturnAbs(-234, 800);
+  inchDrive(29, 650); // decides park position
+  gyroturnAbs(-270);
+  matchLoader.set(true);
+  rollersBottom.spin(forward, 100, pct);
+  inchDrive(40, 1000, 5);
+
 }
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -525,6 +546,8 @@ void autonomous(void) {
       break;
     case 7: // fourth goal
       skillsFourthGoal();
+    case 8:
+      skillsPark();
       break;
   }
 }
