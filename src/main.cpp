@@ -390,13 +390,13 @@ void WPLeft() {
 void skillsFirstGoal() {
   intakeTop();
   stopPiston.set(false);
-  inchDrive(21, 650);
-  gyroturnAbs(34, 440);
-  inchDrive(20, 730);
-  gyroturnAbs(125, 630); 
-  inchDrive(30, 850); // drive to goal
+  inchDrive(21, 620);
+  gyroturnAbs(40, 400);
+  inchDrive(20, 660);
+  gyroturnAbs(125, 590); 
+  inchDrive(28, 820); // drive to goal
   matchLoader.set(true);
-  gyroturnAbs(182, 540); // turn to match load
+  gyroturnAbs(182, 510); // turn to match load
   inchDrive(15.5, 1700, 3.5); // match loading
   wait(400, msec);
   inchDrive(-32.5, 1350, 2.6);
@@ -408,20 +408,20 @@ void skillsFirstGoal() {
 
 void skillsSecondGoal() {
   matchLoader.set(false);
-  inchDrive(15, 590);
+  inchDrive(15, 540);
   gyroturnAbs(-80); // TIME
-  inchDrive(-14, 700);
-  gyroturnAbs(0, 900);
+  inchDrive(-14, 640);
+  gyroturnAbs(0, 690);
   descore.set(true);
-  inchDrive(80, 2000, 3.0); // wall reset
-  gyroturnAbs(-45, 850);
-  inchDrive(18.5, 900); // drive to goal
+  inchDrive(80, 1750, 3.0); // wall reset
+  gyroturnAbs(-45, 690);
+  inchDrive(17.3, 620); // drive to goal
   matchLoader.set(true);
-  gyroturnAbs(0);
+  gyroturnAbs(0, 650);
   stopPiston.set(false);
   intakeTop();
   inchDrive(20, 2100, 3.5); // match loading
-  inchDrive(-32, 1500, 2.6); // scoring
+  inchDrive(-32, 1400, 2.6); // scoring
   stopPiston.set(true);
   intakeTop();
   wait(3000, msec);
