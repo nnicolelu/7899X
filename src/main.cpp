@@ -449,11 +449,10 @@ void skillsSecondGoal() {
   inchDrive(-14, 620);
   gyroturnAbs(0, 690);
   descore.set(true);
-  //inchDrive(80, 1750, 3.0); // wall reset
-  inchDrive(70, 1750, 3.0);
+  inchDrive(75, 1750, 3.0);
   driveToDistance(36, 2000);
   gyroturnAbs(-45, 650);
-  inchDrive(17.2, 620); // drive to goal
+  inchDrive(17.5, 620); // drive to goal
   matchLoader.set(true);
   gyroturnAbs(0, 630);
   stopPiston.set(false);
@@ -462,7 +461,7 @@ void skillsSecondGoal() {
   inchDrive(-32, 1300, 2.6); // scoring
   stopPiston.set(true);
   intakeTop();
-  wait(1200, msec);
+  wait(1000, msec);
   stopAll(); // end second goal
   matchLoader.set(false);
 }
@@ -488,41 +487,35 @@ void skillsThirdGoal() {
 }
 
 void skillsFourthGoal() {
-  inchDrive(17, 550);
-  gyroturnAbs(123, 650);
-  intakeTop();
-  stopPiston.set(false);
-  inchDrive(27, 750);
-  wait(700, msec);
-  stopBottom();
-  gyroturnAbs(180, 550);
-  rollersBottom.spin(forward, 100, pct);
-  //inchDrive(66, 1250);
-  inchDrive(56, 1250);
-  driveToDistance(36, 2000);
-  rollersBottom.stop();
-  gyroturnAbs(245, 750); // turn to face goal
-  inchDrive(24, 730); // going to goal
+  inchDrive(12, 550);
+  gyroturnAbs(90, 500);
+  inchDrive(-14, 550);
+  gyroturnAbs(175, 700);
+  inchDrive(70);
+  driveToDistance(32);
+  gyroturnAbs(120, 700);
+  inchDrive(12, 600); // going to goal
   matchLoader.set(true);
-  gyroturnAbs(183, 720);
+  gyroturnAbs(180, 700);
+  stopPiston.set(false);
   intakeTop();
-  inchDrive(26, 2100, 3.4); // match loading
-  stopTop();
-  inchDrive(-31.5, 1300, 2.7); // driving to goal
+  inchDrive(24, 2100, 3); // match loading
+  inchDrive(-32, 1250, 2.7); 
   stopPiston.set(true);
   intakeTop();
-  wait(3000, msec);
+  wait(2100, msec);
   stopAll();
-  matchLoader.set(false); // end third goal}
+  matchLoader.set(false);
 }
 
 void skillsPark() {
   inchDrive(20, 600);
   gyroturnAbs(-234, 620);
   intakeTop();
-  inchDrive(28, 650); // decides park position
+  inchDrive(25, 650); // decides park position
   stopPiston.set(false);
-  gyroturnAbs(-265, 590);
+  gyroturnAbs(-260, 590);
+  inchDrive(8, 500);
   matchLoader.set(true);
   inchDrive(50, 1000, 5);
   matchLoader.set(false);
@@ -628,9 +621,9 @@ void usercontrol(void) {
     int leftSpeed = (Controller1.Axis3.position(pct) + Controller1.Axis1.position(pct)) * sensitivity;
     int rightSpeed = (Controller1.Axis3.position(pct) - Controller1.Axis1.position(pct)) * sensitivity;
     drive (leftSpeed, rightSpeed, 10);
-    if (Controller1.ButtonRight.pressing()) {
-      drivePark();
-    }
+    // if (Controller1.ButtonRight.pressing()) {
+    //   drivePark();
+    // }
     // scoring top top
     if (Controller1.ButtonR1.pressing()) {
       rollersTop.spin(forward, 100, pct);
