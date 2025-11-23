@@ -438,7 +438,7 @@ void skillsFirstGoal() {
   inchDrive(-32.5, 1150, 2.6);
   stopPiston.set(true);
   intakeTop();
-  wait(2100, msec);
+  wait(2200, msec); // 2100
   stopAll(); // end first goal
 }
 
@@ -458,11 +458,11 @@ void skillsSecondGoal() {
   gyroturnAbs(0, 630);
   stopPiston.set(false);
   intakeTop();
-  inchDrive(23, 2100, 3.5); // match loading
+  inchDrive(23.5, 2100, 3.5); // match loading
   inchDrive(-32, 1300, 2.6); // scoring
   stopPiston.set(true);
   intakeTop();
-  wait(1700, msec);
+  wait(1200, msec);
   stopAll(); // end second goal
   matchLoader.set(false);
 }
@@ -478,7 +478,7 @@ void skillsThirdGoal() {
   intakeTop();
   stopPiston.set(false);
   inchDrive(35, 2100, 3); // match loading
-  gyroturnAbs(-6, 600); // -8
+  gyroturnAbs(6, 600); // -8
   inchDrive(-32, 1250, 2.7); // driving to goal
   stopPiston.set(true);
   intakeTop();
@@ -502,11 +502,11 @@ void skillsFourthGoal() {
   driveToDistance(36, 2000);
   rollersBottom.stop();
   gyroturnAbs(245, 750); // turn to face goal
-  inchDrive(23, 730); // going to goal
+  inchDrive(24, 730); // going to goal
   matchLoader.set(true);
   gyroturnAbs(183, 720);
   intakeTop();
-  inchDrive(24, 2100, 3); // match loading
+  inchDrive(26, 2100, 3.4); // match loading
   stopTop();
   inchDrive(-31.5, 1300, 2.7); // driving to goal
   stopPiston.set(true);
@@ -519,10 +519,11 @@ void skillsFourthGoal() {
 void skillsPark() {
   inchDrive(20, 600);
   gyroturnAbs(-234, 620);
+  intakeTop();
   inchDrive(28, 650); // decides park position
+  stopPiston.set(false);
   gyroturnAbs(-265, 590);
   matchLoader.set(true);
-  intakeTop();
   inchDrive(50, 1000, 5);
   matchLoader.set(false);
 }
@@ -588,7 +589,6 @@ void autonomous(void) {
       break;
     case 4: // SKILLS 1-5
       skillsFirstGoal();
-      break;
     case 5:
       skillsSecondGoal();
     case 6: // SKILLS 6-8
