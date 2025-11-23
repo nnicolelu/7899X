@@ -288,7 +288,7 @@ void driveToDistance(double targetInch, double timeout = 1500) {
   timer t;
   t.reset();
   int stableCount = 0;
-  const int stableNeeded = 5;  //  require 5 consecutive valid readings
+  const int stableNeeded = 8;  //  require 8 consecutive valid readings
   while (t.time(msec) < timeout) {
     double dist = Distance.objectDistance(inches);
     if (dist <= 0) continue;
@@ -452,7 +452,7 @@ void skillsSecondGoal() {
   inchDrive(75, 1750, 3.0);
   driveToDistance(36, 2000);
   gyroturnAbs(-45, 650);
-  inchDrive(17.5, 620); // drive to goal
+  inchDrive(17.7, 620); // drive to goal
   matchLoader.set(true);
   gyroturnAbs(0, 630);
   stopPiston.set(false);
@@ -470,7 +470,7 @@ void skillsThirdGoal() {
   inchDrive(15, 500);
   gyroturnAbs(-80, 560);
   inchDrive(70, 1200, 3); // add distance sensor code here
-  driveToDistance(23.8, 2000);
+  driveToDistance(24, 2000);
   gyroturnAbs(354, 620); // rigyt angle 340
   matchLoader.set(true);
   inchDrive(-21, 770, 4); // driving backwards to goal
@@ -494,7 +494,7 @@ void skillsFourthGoal() {
   inchDrive(70);
   driveToDistance(32);
   gyroturnAbs(120, 700);
-  inchDrive(12, 600); // going to goal
+  inchDrive(12.5, 600); // going to goal
   matchLoader.set(true);
   gyroturnAbs(180, 700);
   stopPiston.set(false);
@@ -517,7 +517,7 @@ void skillsPark() {
   gyroturnAbs(-260, 590);
   inchDrive(8, 500);
   matchLoader.set(true);
-  inchDrive(50, 1000, 5);
+  inchDrive(44, 1000, 5);
   matchLoader.set(false);
 }
 
