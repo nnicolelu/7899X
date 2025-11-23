@@ -16,14 +16,14 @@ competition Competition;
 // auton toggles: 
 // 0 = Left Long Goal reg
 // 1 = Right Long Goal with descore
-// 2 = WP Right
+// 2 = WP Right n/a
 // 3 = WP Left
 // 4 = skills goal 1
 // 5 = skills goal 2
 // 6 = skills goal 3
 // 7 = skills goal 4
 // 8 = skills park
-int autonToggle = 4;
+int autonToggle = 3;
 
 // define your global instances of motors and other devices here
 brain Brain;
@@ -409,18 +409,35 @@ void WPLeft() {
   gyroturnAbs(-28, 400); // turn for 3 blocks
   inchDrive(7, 500); // getting blocks
   matchLoader.set(true);
-  inchDrive(9, 600);
+  inchDrive(11, 600);
   rollersTop.spin(reverse, 100, pct);
   topIntake.spin(reverse, 100, pct);
   wait(300, msec);
   rollersTop.stop();
   topIntake.stop();
-  gyroturnAbs(-130, 800);
-  inchDrive(-16, 800);
+  gyroturnAbs(-130, 700);
+  inchDrive(-15.3, 700);
   intakeMiddleTop();
-  wait(900, msec);
-  stopAll();
-  inchDrive(45);
+  wait(1350, msec);
+  stopAll(); //  end midle
+  inchDrive(20, 650);
+  gyroturnAbs(245, 700);
+  inchDrive(28.5, 700); // drive to goal
+  gyroturnAbs(-176, 600);
+  intakeTop();
+  inchDrive(22, 800, 3.2); // match loading
+  wait(350, msec);
+  stopTop();
+  stopPiston.set(true);
+  inchDrive(-32, 1200, 2.6); // scoring
+  intakeTop();
+  wait(2000, msec);
+  intakeStop();
+  inchDrive(10, 450);
+  stopPiston.set(false);
+  inchDrive(-12);
+  leftSide.stop(hold);
+  rightSide.stop(hold);
 }
 
 void skillsFirstGoal() {
