@@ -23,7 +23,7 @@ competition Competition;
 // 6 = skills goal 3
 // 7 = skills goal 4
 // 8 = skills park
-int autonToggle = 3;
+int autonToggle = 0;
 
 // define your global instances of motors and other devices here
 brain Brain;
@@ -322,10 +322,10 @@ void longGoalLeft() {
   matchLoader.set(true);
   inchDrive(5, 500);
   gyroturnAbs(-120, 800); 
-  inchDrive(35.5, 880); // driving to match loader
+  inchDrive(35.2, 880); // driving to match loader
   matchLoader.set(true);
-  gyroturnAbs(-175, 900); // 185
-  inchDrive(18.5, 800, 3.5); // match loading
+  gyroturnAbs(-178, 900); // 175
+  inchDrive(20, 800, 3.6); // match loading
   wait(340, msec);
   stopAll();
   stopPiston.set(true);
@@ -346,20 +346,22 @@ void longGoalRight() {
   matchLoader.set(true);
   inchDrive(5, 500);
   gyroturnAbs(120, 720);
-  inchDrive(36.5, 880); // goijg to goal // og: 33 // middle field: 33.8 // lessen if goal is more on the left
+  stopTop();
+  inchDrive(38, 880); // goijg to goal // og: 33 // middle field: 33.8 // lessen if goal is more on the left
   matchLoader.set(true);
   gyroturnAbs(179, 770);
-  inchDrive(18, 800, 3.2); // match loading
+  intakeTop();
+  inchDrive(19.5, 800, 3.2); // match loading
   wait(290, msec); // need to lessen this mayb
   stopTop();
   stopPiston.set(true);
   inchDrive(-32, 1200, 2.6);
   intakeTop();
-  wait(2300, msec);
+  wait(2000, msec);
   intakeStop(); // done with goal
   inchDrive(10, 450);
   stopPiston.set(false);
-  inchDrive(-12);
+  inchDrive(-14);
   leftSide.stop(hold);
   rightSide.stop(hold);
 }
@@ -418,15 +420,15 @@ void WPLeft() {
   gyroturnAbs(-130, 700);
   inchDrive(-15.3, 700);
   intakeMiddleTop();
-  wait(1350, msec);
+  wait(1400, msec);
   stopAll(); //  end midle
-  inchDrive(20, 650);
-  gyroturnAbs(245, 700);
-  inchDrive(28.5, 700); // drive to goal
-  gyroturnAbs(-176, 600);
+  inchDrive(20, 550);
+  gyroturnAbs(245, 600);
+  inchDrive(25.6, 600); // drive to goal
+  gyroturnAbs(-176, 550);
   intakeTop();
-  inchDrive(22, 800, 3.2); // match loading
-  wait(350, msec);
+  inchDrive(25, 800, 3.4); // match loading
+  wait(450, msec);
   stopTop();
   stopPiston.set(true);
   inchDrive(-32, 1200, 2.6); // scoring
@@ -435,7 +437,7 @@ void WPLeft() {
   intakeStop();
   inchDrive(10, 450);
   stopPiston.set(false);
-  inchDrive(-12);
+  inchDrive(-12, 500);
   leftSide.stop(hold);
   rightSide.stop(hold);
 }
@@ -444,14 +446,14 @@ void skillsFirstGoal() {
   intakeTop();
   stopPiston.set(false);
   inchDrive(21, 620);
-  gyroturnAbs(41.5, 380);
+  gyroturnAbs(38, 380);
   inchDrive(20, 660);
   gyroturnAbs(125, 550); 
-  inchDrive(27.5, 820); // drive to goal
+  inchDrive(29.5, 820); // drive to goal
   matchLoader.set(true);
-  gyroturnAbs(182, 510); // turn to match load
+  gyroturnAbs(180, 510); // turn to match load
   inchDrive(17.5, 1700, 3.8); // match loading
-  wait(500, msec); // 400
+  wait(600, msec); // 400
   inchDrive(-32.5, 1150, 2.6);
   stopPiston.set(true);
   intakeTop();
@@ -605,8 +607,10 @@ void autonomous(void) {
       break;
     case 4: // SKILLS 1-5
       skillsFirstGoal();
+      break;
     case 5:
       skillsSecondGoal();
+      break;
     case 6: // SKILLS 6-8
       skillsThirdGoal();
     case 7: // fourth goal
@@ -637,8 +641,6 @@ void usercontrol(void) {
   Controller1.ButtonDown.pressed(loaderControl);
   Controller1.ButtonY.pressed(unloading);
   Controller1.ButtonB.pressed(descoreControl);
-  //Controller1.ButtonRight.pressed(skillsPark);
-  //Controller1.Button
   while (1) {
     double sensitivity = 0.7;
     int leftSpeed = (Controller1.Axis3.position(pct) + Controller1.Axis1.position(pct)) * sensitivity;
