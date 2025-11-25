@@ -16,14 +16,13 @@ competition Competition;
 // auton toggles: 
 // 0 = Left Long Goal reg
 // 1 = Right Long Goal with descore
-// 2 = WP Right n/a
 // 3 = WP Left
 // 4 = skills goal 1
 // 5 = skills goal 2
 // 6 = skills goal 3
 // 7 = skills goal 4
 // 8 = skills park
-int autonToggle = 0;
+int autonToggle = 3;
 
 // define your global instances of motors and other devices here
 brain Brain;
@@ -49,7 +48,6 @@ motor topIntake = motor(PORT3, ratio18_1, false);
 digital_out descore = digital_out(Brain.ThreeWirePort.G);
 digital_out matchLoader = digital_out(Brain.ThreeWirePort.H);
 digital_out stopPiston = digital_out(Brain.ThreeWirePort.F); // false = open true = close
-//digital_out frontDescore = digital_out(Brain.ThreeWirePort.F);
 
 // constants
 double pi = 3.1415926;
@@ -167,7 +165,6 @@ void inchDrive(float target, int timeout = 1200, float kp = 3.8) {
     heading = Gyro.rotation(degrees);
     aerror  = normalizeAngle(Atarget - heading);
     aspeed  = ap * aerror;
-
     x = ((rightFront.position(rev) + leftFront.position(rev)) / 2.0) * pi * diameter * g;
     error = target - x;
     if (fabs(error) < accuracy)
@@ -217,7 +214,6 @@ void gyroturnAbs(double target, int timeout = 1200) {
   float kd = 0.6;
   float integral = 0;
   float integralTolerance = 3;
-  // float integralMax = 100;
   float heading = 0.0;
   float error = 0.0;
   float prevError = 0;
@@ -258,32 +254,6 @@ void gyroturnAbs(double target, int timeout = 1200) {
   wait(10, msec);
 }
 
-// rd = radius of circular path
-void arcTurn(float rd, float angle, float maxSpeed = 100) {
-  float kp = 12.0;
-  float kd = 1.0;
-  float targetArcLength = rd * 2 * pi * (angle/360.0);
-  float arcLength = 0.0;
-  float error = targetArcLength - arcLength;
-  float oldError = error;
-  float lspeed = (maxSpeed * angle) / fabs(angle);
-  float rspeed = (lspeed * (rd - width)) / rd;
-  float accuracy = 0.2;
-  leftMiddle.setPosition(0.0, rev);
-  rightMiddle.setPosition(0.0, rev);
-  while (fabs(error) >= accuracy) {
-    DriveVolts(lspeed, rspeed, 1, 10);
-    arcLength = leftMiddle.position(rev) * g * pi * diameter;
-    oldError = error;
-    error = targetArcLength - arcLength;
-    lspeed = (kp * error) + (kd * (error-oldError));
-    if (fabs(lspeed) >= maxSpeed) {
-      lspeed = (maxSpeed * error) / fabs(error);
-      rspeed = (lspeed * (rd - width)) / rd;
-    }
-  }
-}
-
 void driveToDistance(double targetInch, double timeout = 1500) {
   timer t;
   t.reset();
@@ -321,12 +291,14 @@ void longGoalLeft() {
   inchDrive(7, 700); // getting blocks
   matchLoader.set(true);
   inchDrive(5, 500);
+  stopTop();
   gyroturnAbs(-120, 800); 
-  inchDrive(35.2, 880); // driving to match loader
+  inchDrive(35, 880); // driving to match loader
   matchLoader.set(true);
-  gyroturnAbs(-178, 900); // 175
-  inchDrive(20, 800, 3.6); // match loading
-  wait(340, msec);
+  gyroturnAbs(-180, 900); // 175
+  intakeTop();
+  inchDrive(19, 800, 3); // match loading
+  wait(350, msec);
   stopAll();
   stopPiston.set(true);
   inchDrive(-32, 1200, 2.6);
@@ -345,19 +317,21 @@ void longGoalRight() {
   inchDrive(7, 700); // getting blocks
   matchLoader.set(true);
   inchDrive(5, 500);
+  stopTop();
   gyroturnAbs(120, 720);
   stopTop();
-  inchDrive(38, 880); // goijg to goal // og: 33 // middle field: 33.8 // lessen if goal is more on the left
+  inchDrive(34.7, 880); // goijg to goal // og: 33 // middle field: 33.8 // lessen if goal is more on the left
   matchLoader.set(true);
-  gyroturnAbs(179, 770);
   intakeTop();
-  inchDrive(19.5, 800, 3.2); // match loading
-  wait(290, msec); // need to lessen this mayb
+  gyroturnAbs(181, 770);
+  intakeTop();
+  inchDrive(20, 800, 3.2); // match loading
+  wait(320, msec); // need to lessen this mayb
   stopTop();
   stopPiston.set(true);
   inchDrive(-32, 1200, 2.6);
   intakeTop();
-  wait(2000, msec);
+  wait(3000, msec);
   intakeStop(); // done with goal
   inchDrive(10, 450);
   stopPiston.set(false);
@@ -366,44 +340,39 @@ void longGoalRight() {
   rightSide.stop(hold);
 }
 
-void WPRight() {
+void distanceSensorDis() {
   intakeTop();
   stopPiston.set(false);
   inchDrive(30, 680); // drive to 3 blocks
-  gyroturnAbs(28, 400); // turn for 3 blocks
-  inchDrive(7, 500); // getting blocks
+  gyroturnAbs(28, 390); // turn for 3 blocks
+  inchDrive(7, 700); // getting blocks
   matchLoader.set(true);
-  inchDrive(5, 600);
-  gyroturnAbs(56, 580);
-  matchLoader.set(false);
-  inchDrive(37, 650); // going under
-  matchLoader.set(true);
-  intakeBottom();
-  wait(500, msec);
-  inchDrive(-21, 670);
-  matchLoader.set(false);
-  rollersTop.spin(reverse, 100, pct);
-  intakeMiddleBottom(); // scoring
-  gyroturnAbs(-38, 690);
-  inchDrive(17.5, 700);
-  wait(630, msec);
-  intakeTop();
-  inchDrive(-48.5, 1100); // going to goal
-  matchLoader.set(true);
-  gyroturnAbs(-173, 1000);
-  inchDrive(20, 800, 3.3); // match loading
-  wait(380, msec);
+  inchDrive(5, 500);
   stopTop();
-  stopPiston.set(true);
-  inchDrive(-301, 1200, 2.6);
+  gyroturnAbs(120, 720);
+  stopTop();
+  inchDrive(34.7, 880); // goijg to goal // og: 33 // middle field: 33.8 // lessen if goal is more on the left
+  matchLoader.set(true);
   intakeTop();
-  wait(2050, msec);
-  inchDrive(10, 500);
+  gyroturnAbs(181, 770);
+  intakeTop();
+  inchDrive(20, 800, 3.2); // match loading
+  wait(320, msec); // need to lessen this mayb
+  stopTop();  
+  stopPiston.set(true);   
+  inchDrive(-25, 1200, 2.6);
+  //
+  inchDrive(-8);
+  intakeTop();
+  wait(3000, msec);
+  intakeStop(); // done with goal
+  inchDrive(10, 450);
   stopPiston.set(false);
-  inchDrive(-19, 2000, 4);
+  inchDrive(-14);
+  leftSide.stop(hold);
+  rightSide.stop(hold);
 }
 
-// NEED TO FINISH
 void WPLeft() {
   intakeTop();
   stopPiston.set(false);
@@ -411,23 +380,23 @@ void WPLeft() {
   gyroturnAbs(-28, 400); // turn for 3 blocks
   inchDrive(7, 500); // getting blocks
   matchLoader.set(true);
-  inchDrive(11, 600);
+  inchDrive(9.5, 600);
   rollersTop.spin(reverse, 100, pct);
   topIntake.spin(reverse, 100, pct);
   wait(300, msec);
   rollersTop.stop();
   topIntake.stop();
   gyroturnAbs(-130, 700);
-  inchDrive(-15.3, 700);
+  inchDrive(-16.5, 700);
   intakeMiddleTop();
   wait(1400, msec);
   stopAll(); //  end midle
-  inchDrive(20, 550);
+  inchDrive(20, 600);
   gyroturnAbs(245, 600);
-  inchDrive(25.6, 600); // drive to goal
-  gyroturnAbs(-176, 550);
+  inchDrive(31, 900); // drive to goal
+  gyroturnAbs(-176, 800);
   intakeTop();
-  inchDrive(25, 800, 3.4); // match loading
+  inchDrive(24, 800, 2.8); // match loading
   wait(450, msec);
   stopTop();
   stopPiston.set(true);
@@ -546,20 +515,6 @@ void skillsPark() {
   matchLoader.set(false);
 }
 
-void drivePark() {
-  Gyro.setRotation(0, degrees);
-  wait(20, msec);
-  inchDrive(20, 600);
-  gyroturnAbs(-43, 550);
-  inchDrive(21.2, 650);
-  gyroturnAbs(-82.5, 650);
-  inchDrive(12, 500);
-  intakeTop();
-  matchLoader.set(true);
-  inchDrive(46, 1000, 4.7);
-  matchLoader.set(false);
-}
-
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
 /*                                                                           */
@@ -599,9 +554,6 @@ void autonomous(void) {
     case 1: // right side doesnt work
       longGoalRight();
       break;
-    case 2: 
-      WPRight();
-      break;
     case 3:
       WPLeft();
       break;
@@ -624,6 +576,9 @@ void autonomous(void) {
       inchDrive(85, 1950, 3); // add distance sensor code here
       driveToDistance(16.5);
       break;
+    case 10:
+      inchDrive(3);
+      break;
   }
 }
 
@@ -645,11 +600,7 @@ void usercontrol(void) {
     double sensitivity = 0.7;
     int leftSpeed = (Controller1.Axis3.position(pct) + Controller1.Axis1.position(pct)) * sensitivity;
     int rightSpeed = (Controller1.Axis3.position(pct) - Controller1.Axis1.position(pct)) * sensitivity;
-    drive (leftSpeed, rightSpeed, 10);
-    // if (Controller1.ButtonRight.pressing()) {
-    //   drivePark();
-    // }
-    // scoring top top
+    drive(leftSpeed, rightSpeed, 10);
     if (Controller1.ButtonR1.pressing()) {
       rollersTop.spin(forward, 100, pct);
       topIntake.spin(forward, 100, pct);
